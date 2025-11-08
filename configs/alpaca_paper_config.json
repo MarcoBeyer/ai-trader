@@ -1,0 +1,30 @@
+{
+  "agent_type": "BaseAgent",
+  "market": "us",
+  "trading_mode": "alpaca_paper",
+  "date_range": {
+    "init_date": "2025-10-01",
+    "end_date": "2025-10-21"
+  },
+  "models": [
+    {
+      "name": "gpt-4o",
+      "basemodel": "openai/gpt-4o",
+      "signature": "gpt-4o-alpaca",
+      "enabled": true
+    }
+  ],
+  "agent_config": {
+    "max_steps": 30,
+    "max_retries": 3,
+    "base_delay": 1.0,
+    "initial_cash": 10000.0
+  },
+  "log_config": {
+    "log_path": "./data/agent_data_alpaca"
+  },
+  "alpaca_config": {
+    "paper_trading": true,
+    "enable_alpaca": true
+  }
+}

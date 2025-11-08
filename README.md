@@ -307,6 +307,7 @@ AI-Trader Bench/
   - Alpha Vantage (for NASDAQ 100 data)
   - Jina AI (for market information search)
   - Tushare (for A-share market data, optional)
+  - Alpaca (for paper or live trading, optional)
 
 ### ⚡ One-Click Installation
 
@@ -337,6 +338,10 @@ ALPHAADVANTAGE_API_KEY=your_alpha_vantage_key  # For NASDAQ 100 data
 JINA_API_KEY=your_jina_api_key
 TUSHARE_TOKEN=your_tushare_token               # For A-share data
 
+# 💰 Alpaca API Configuration (Optional - for paper or live trading)
+ALPACA_API_KEY=your_alpaca_api_key
+ALPACA_SECRET_KEY=your_alpaca_secret_key
+
 # ⚙️ System Configuration
 RUNTIME_ENV_PATH=./runtime_env.json # Recommended to use absolute path
 
@@ -345,6 +350,7 @@ MATH_HTTP_PORT=8000
 SEARCH_HTTP_PORT=8001
 TRADE_HTTP_PORT=8002
 GETPRICE_HTTP_PORT=8003
+ALPACA_HTTP_PORT=8004                          # For Alpaca trading service
 # 🧠 AI Agent Configuration
 AGENT_MAX_STEP=30             # Maximum reasoning steps
 ```
@@ -660,6 +666,89 @@ data/agent_data/
 │   └── ...
 └── qwen3-max/
     └── ...
+```
+
+## 💰 Alpaca Integration - Paper & Live Trading
+
+AI-Trader now supports real trading through the Alpaca API, enabling both paper trading (simulated with virtual money) and live trading with real money.
+
+### 🎯 Features
+
+- **Paper Trading**: Test your AI trading strategies with $100,000 virtual money in a simulated environment
+- **Live Trading**: Execute real trades in the market with your Alpaca brokerage account
+- **Real-time Market Data**: Access live market quotes and prices
+- **Position Management**: Track your portfolio, positions, and account balance
+- **Fractional Shares**: Support for fractional share trading on eligible stocks
+
+### 🔧 Setup
+
+1. **Create Alpaca Account**:
+   - Sign up at [Alpaca Markets](https://alpaca.markets/)
+   - For paper trading: Use paper trading credentials
+   - For live trading: Complete account verification and funding
+
+2. **Get API Credentials**:
+   - Navigate to your Alpaca dashboard
+   - Generate API Key and Secret Key
+   - **Paper trading keys** start with `PK` and `SK`
+   - **Live trading keys** start with `AK` and `SAK`
+
+3. **Configure Environment**:
+   ```bash
+   # Add to your .env file
+   ALPACA_API_KEY=your_alpaca_api_key
+   ALPACA_SECRET_KEY=your_alpaca_secret_key
+   ALPACA_HTTP_PORT=8004
+   ```
+
+4. **Start Trading**:
+   ```bash
+   # Start MCP services (includes Alpaca if credentials are set)
+   cd agent_tools
+   python start_mcp_services.py
+   
+   # Run with Alpaca configuration
+   cd ..
+   python main.py configs/alpaca_paper_config.json
+   ```
+
+### 📋 Available Alpaca Tools
+
+The integration provides the following MCP tools for AI agents:
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `alpaca_buy` | Buy stocks via Alpaca | `symbol`, `amount`, `paper` (default: True) |
+| `alpaca_sell` | Sell stocks via Alpaca | `symbol`, `amount`, `paper` (default: True) |
+| `alpaca_get_account` | Get account balance and portfolio value | `paper` (default: True) |
+| `alpaca_get_positions` | Get current stock positions | `paper` (default: True) |
+| `alpaca_get_latest_price` | Get latest market quote | `symbol` |
+
+### ⚠️ Important Notes
+
+- **Always test with paper trading first** before using live trading
+- Set `paper=True` for paper trading, `paper=False` for live trading
+- Trading is only available during market hours (9:30 AM - 4:00 PM ET, weekdays)
+- All Alpaca trades are logged in `data/agent_data_alpaca/{signature}/alpaca_trades/trades.jsonl`
+- Market orders execute at the current market price
+- Fractional shares are supported for most US stocks
+
+### 📊 Configuration Example
+
+See `configs/alpaca_paper_config.json` for a complete example. Key differences from simulated trading:
+
+```json
+{
+  "agent_type": "BaseAgent",
+  "trading_mode": "alpaca_paper",
+  "alpaca_config": {
+    "paper_trading": true,
+    "enable_alpaca": true
+  },
+  "log_config": {
+    "log_path": "./data/agent_data_alpaca"
+  }
+}
 ```
 
 ## 🔌 Third-Party Strategy Integration

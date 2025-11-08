@@ -28,6 +28,7 @@ class MCPServiceManager:
             "search": int(os.getenv("SEARCH_HTTP_PORT", "8001")),
             "trade": int(os.getenv("TRADE_HTTP_PORT", "8002")),
             "price": int(os.getenv("GETPRICE_HTTP_PORT", "8003")),
+            "alpaca": int(os.getenv("ALPACA_HTTP_PORT", "8004")),
             "crypto": int(os.getenv("CRYPTO_HTTP_PORT", "8005")),
         }
 
@@ -41,6 +42,16 @@ class MCPServiceManager:
             "price": {"script": os.path.join(mcp_server_dir, "tool_get_price_local.py"), "name": "LocalPrices", "port": self.ports["price"]},
             "crypto": {"script": os.path.join(mcp_server_dir, "tool_crypto_trade.py"), "name": "CryptoTradeTools", "port": self.ports["crypto"]},
         }
+        
+        # Optionally add Alpaca service if API credentials are configured
+        alpaca_api_key = os.getenv("ALPACA_API_KEY")
+        alpaca_secret = os.getenv("ALPACA_SECRET_KEY")
+        if alpaca_api_key and alpaca_secret:
+            self.service_configs["alpaca"] = {
+                "script": "tool_alpaca_trade.py", 
+                "name": "AlpacaTrade", 
+                "port": self.ports["alpaca"]
+            }
 
         # Create logs directory
         self.log_dir = Path("../logs")
