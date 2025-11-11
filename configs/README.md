@@ -12,6 +12,7 @@ This directory contains multiple configuration files for different trading scena
 |-------------------|--------|-------------------|-------------|
 | `default_config.json` | US (NASDAQ 100) | Daily | Default US stock trading configuration |
 | `astock_config.json` | CN (SSE 50) | Daily | A-share market trading configuration |
+| `alpaca_paper_config.json` | US (Alpaca) | Real-time | Alpaca paper trading configuration |
 
 ### `default_config.json`
 
@@ -181,6 +182,99 @@ Certain configuration values can be overridden using environment variables:
   }
 }
 ```
+
+### Alpaca Paper Trading Configuration
+```json
+{
+  "agent_type": "BaseAgent",
+  "market": "us",
+  "trading_mode": "alpaca_paper",
+  "date_range": {
+    "init_date": "2025-10-01",
+    "end_date": "2025-10-21"
+  },
+  "models": [
+    {
+      "name": "gpt-4o",
+      "basemodel": "openai/gpt-4o",
+      "signature": "gpt-4o-alpaca",
+      "enabled": true
+    }
+  ],
+  "agent_config": {
+    "max_steps": 30,
+    "max_retries": 3,
+    "base_delay": 1.0,
+    "initial_cash": 10000.0
+  },
+  "log_config": {
+    "log_path": "./data/agent_data_alpaca"
+  },
+  "alpaca_config": {
+    "paper_trading": true,
+    "enable_alpaca": true
+  }
+}
+```
+
+## Alpaca Integration
+
+The system now supports real trading through the Alpaca API for both paper trading (simulated) and live trading.
+
+### Setup
+
+1. **Get Alpaca API Credentials**:
+   - Sign up for a free account at [Alpaca](https://alpaca.markets/)
+   - Generate API keys from your dashboard
+   - For paper trading, use paper trading API keys
+   - For live trading, use live trading API keys
+
+2. **Configure Environment Variables**:
+   Add your Alpaca credentials to `.env`:
+   ```bash
+   ALPACA_API_KEY=your_alpaca_api_key
+   ALPACA_SECRET_KEY=your_alpaca_secret_key
+   ALPACA_HTTP_PORT=8004
+   ```
+
+3. **Start MCP Services with Alpaca**:
+   When Alpaca credentials are configured in `.env`, the Alpaca trading service will automatically start:
+   ```bash
+   cd agent_tools
+   python start_mcp_services.py
+   ```
+
+### Alpaca Tools Available
+
+The Alpaca integration provides the following MCP tools:
+
+- **`alpaca_buy(symbol, amount, paper=True)`**: Buy stocks via Alpaca
+- **`alpaca_sell(symbol, amount, paper=True)`**: Sell stocks via Alpaca
+- **`alpaca_get_account(paper=True)`**: Get account balance and portfolio value
+- **`alpaca_get_positions(paper=True)`**: Get current stock positions
+- **`alpaca_get_latest_price(symbol)`**: Get latest market quote for a symbol
+
+### Paper Trading vs Live Trading
+
+- **Paper Trading** (`paper=True`): Uses Alpaca's paper trading environment with simulated money
+- **Live Trading** (`paper=False`): Uses real money in the live market ⚠️
+
+**Important**: Always test your strategies with paper trading first before using live trading!
+
+### Example Usage
+
+```bash
+# Run with Alpaca paper trading configuration
+python main.py configs/alpaca_paper_config.json
+```
+
+### Notes on Alpaca Trading
+
+- Alpaca supports fractional shares for most US stocks
+- Market orders are executed at the current market price
+- Trading is only available during market hours (9:30 AM - 4:00 PM ET, weekdays)
+- Paper trading accounts start with $100,000 virtual cash
+- All trades are logged in `data/agent_data_alpaca/{signature}/alpaca_trades/trades.jsonl`
 
 ## Agent Types
 

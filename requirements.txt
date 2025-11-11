@@ -4,3 +4,4 @@ langchain-mcp-adapters>=0.1.0
 fastmcp==2.12.5
 
 tushare
+alpaca-py>=0.31.0
